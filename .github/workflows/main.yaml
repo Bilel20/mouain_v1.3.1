@@ -3,6 +3,7 @@ name: Build Windows Executable
 on:
   push:
     branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,17 +18,20 @@ jobs:
       with:
         python-version: '3.12'
 
+    - name: Upgrade pip/setuptools/wheel
+      run: python -m pip install --upgrade pip setuptools wheel
+
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install PySide6 pandas openpyxl reportlab pyinstaller
+        pip install pyinstaller
+        pip install -r requirements.txt
 
     - name: Build with PyInstaller
       run: |
-        pyinstaller --noconsole --onefile --add-data "fonts;fonts" --add-data "icons;icons" --add-data "style_1.qss;."  --name="mouain_app" main.py
-
+        pyinstaller --noconsole --onefile --paths=. --add-data "fonts;fonts" --add-data "icons;icons" --add-data "style_1.qss;." --name="mouain_app_v1-3_1" main.py
+    
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: Windows-Executable
-        path: dist/mouain_app.exe
+        path: dist/*.exe
